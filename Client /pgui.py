@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 
 screen = Tk()
 screen.title("GV-NAPSTER Host")
@@ -60,9 +61,23 @@ kywordLabel.grid(row=0, column=1)
 kywordText = Entry(searchFrame, relief = GROOVE, width = 40)
 kywordText.grid(row=0, column=2)
 
+fileTree = ttk.Treeview(searchFrame, columns=("speed", "hostname", "filename", "description"))
+fileTree['show'] = 'headings'
+fileTree.column("speed", width = 80, anchor="center")	
+fileTree.column("hostname", width = 150, anchor="center")	
+fileTree.column("filename", width = 150, anchor="center")	
+fileTree.column("description", width = 250, anchor="center")	
+fileTree.heading('speed', text="Speed")
+fileTree.heading('hostname', text="Hostname")
+fileTree.heading('filename', text="Filename")
+fileTree.heading('description', text="Description")
+fileTree.grid(row = 1, column = 2)
+fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
+
 def key_search():
 	print(kywordText.get())
 	kywordText.delete(0, END)
+	fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
 
 searchButton = Button(searchFrame, text="Search", width=10, command=key_search)
 searchButton.grid(row=0, column=3, padx = 10)
@@ -77,13 +92,10 @@ listbox = Listbox(ftpFrame, width = 70)
 listbox.grid(row=1, column=2)
 
 
-listbox.insert(END, "Hello")
-listbox.insert(END, "HI")
+# listbox.insert(END, "Hello")
+# listbox.insert(END, "HI")
 
 def ftp_go():
-	print(entcommText.get())
-	for i in range(100):
-		listbox.insert(END, i)
 	listbox.see(END)
 	entcommText.delete(0, END)
 
