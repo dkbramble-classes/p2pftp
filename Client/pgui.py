@@ -1,5 +1,12 @@
 from tkinter import *
 from tkinter import ttk
+from functools import partial
+import sys
+import os
+import socket
+from ftplib import FTP
+
+ftp = FTP('')
 
 screen = Tk()
 screen.title("GV-NAPSTER Host")
@@ -73,15 +80,11 @@ fileTree.heading('filename', text="Filename")
 fileTree.heading('description', text="Description")
 fileTree.grid(row = 1, column = 2)
 fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
 
 def key_search():
 	print(kywordText.get())
 	kywordText.delete(0, END)
-	tree.delete(*tree.get_children())
-	#fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
+	fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
 
 searchButton = Button(searchFrame, text="Search", width=10, command=key_search)
 searchButton.grid(row=0, column=3, padx = 10)
@@ -96,12 +99,27 @@ listbox = Listbox(ftpFrame, width = 70)
 listbox.grid(row=1, column=2)
 
 
+#Connects to the host server
+#host - hostname / IP address of the server
+#port - the port number (1026)
+def CONNECT(host, port):
+    ftp.connect(host, int(port))
+    ftp.login()
+    ftp.cwd('.') #replace with your directory
+    ftp.retrlines('LIST')
+    print("connected to " + host)
+
 # listbox.insert(END, "Hello")
 # listbox.insert(END, "HI")
-
-def ftp_go():
+def ftp_go(host, port):
+	ftp.connect(host, int(port))
+	ftp.login()
+	ftp.cwd('.') #replace with your directory
+	ftp.retrlines('LIST')
+	print("connected to " + host)
 	listbox.see(END)
 	entcommText.delete(0, END)
+
 
 goButton = Button(ftpFrame, text="Go", width=10, command=ftp_go)
 goButton.grid(row=0, column=3, padx = 10)

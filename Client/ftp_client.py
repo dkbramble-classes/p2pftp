@@ -54,11 +54,11 @@ def RETRIEVE(file_dl):
         print("Retrieved file " + file_dl)
     else:
         print("File wasn't found")
-       
+
 def main(): #creates a command line interface to connect with a given server and issue it commands
-    quit = False
+    #quit = False
     connect = False
-    while quit == False:
+    #while quit == False:
         command = input("Enter a command: ") #ask for input
         os.system('cls' if os.name == 'nt' else 'clear')#clears terminal output
         function = command.split(' ', 3) #splice the input into a list delimited by spaces
