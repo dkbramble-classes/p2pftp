@@ -28,13 +28,16 @@ class Database(BaseHTTPRequestHandler):
             }
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         elif parsedBody[0] == "File":
-            userFiles[parsedBody[1]].add({
-                "fileName": parsedBody[2],
-                "fileDescriptor": parsedBody[3]
-            } )
+            userFiles[parsedBody[1]][parsedBody[2]] =  parsedBody[3]
+        elif parsedBody[0] == "Quit":
+            userInfo.delete(parsedBody[1])
+            userFiles.delete(parsedBody[2])
         else:
             print("Didn't receive proper request")
         print("This is the body: " + strBody)
+        print("This is UserInfo: " )
+        for user in userInfo:
+            print(user)
         self.send_response(200)
         self.end_headers()
 
