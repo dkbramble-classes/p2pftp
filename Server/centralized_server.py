@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
 from socketserver import ThreadingMixIn
-#import SocketServer
+import json
 # https://blog.anvileight.com/posts/simple-python-http-server/
 # https://gist.github.com/bradmontgomery/2219997
 # curl -d "username_hostname_connection" http://localhost
@@ -22,10 +22,13 @@ class Database(BaseHTTPRequestHandler):
         parsedBody = strBody.split("_")
         # If the information is about a user, store the username with the hostname and connection as a smaller dictionary
         if parsedBody[0] == "User":
-            userInfo[parsedBody[1]] = {
-                "hostname": parsedBody[2],
-                "connection": parsedBody[3]
-            }
+            if parsedBody[1] not in userInfo:
+
+            else:
+                userInfo[parsedBody[1]] = {
+                    "hostname": parsedBody[2],
+                    "connection": parsedBody[3]
+                }
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         elif parsedBody[0] == "File":
             userFiles[parsedBody[1]][parsedBody[2]] =  parsedBody[3]
