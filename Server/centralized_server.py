@@ -25,7 +25,9 @@ class Database(BaseHTTPRequestHandler):
         response = {}
         print(search[1])
         for username in userFiles:
-            for file in username:
+            print("Username is: " + username)
+            for file in userFiles[username]:
+                print("filename is: " + file)
                 if search[1] in userFiles[username][file]:
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
@@ -34,10 +36,15 @@ class Database(BaseHTTPRequestHandler):
                         "description": userFiles[username][file]
                     }
                     x += 1
+                    print("File " + file + " with description \"" + userFiles[username][file] + "\" Added to response")
+
         self.send_response(200)
         self.end_headers()
-        response = "Get Gotten"
-        self.wfile.write(response.encode("utf-8"))
+        responseStr = json.dumps(response)
+        print("The response should be: " + responseStr)
+        self.wfile.write(responseStr.encode("utf-8"))
+        # testResponse = "SEARCHED"
+        # self.wfile.write(testResponse.encode("utf-8"))
 
         #query_components = dict(qc.split("=") for qc in query.split("&"))
 
@@ -55,7 +62,9 @@ class Database(BaseHTTPRequestHandler):
                 "hostname": parsedBody[2],
                 "connection": parsedBody[3]
             }
-            response = "The User storage has been sucessful!!!!!!"
+            self.send_response(200)
+            self.end_headers()
+            response = "CONNECTED"
             self.wfile.write(response.encode("utf-8"))
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         #The JSON text that we send here to the server needs to have escape characters 
@@ -64,25 +73,25 @@ class Database(BaseHTTPRequestHandler):
             jsonString = parsedBody[2]
             for x in range(3, len(parsedBody)):
                 jsonString += "_" + str(parsedBody[x])
-            print(jsonString)
+            print("jsonString is: " + jsonString)
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
             for file in datastore:
                 print(file)
                 userFiles[parsedBody[1]][file] =  datastore[file]
-            response = "The File Description storage has been sucessful!!!!!!"
+            self.send_response(200)
+            self.end_headers()
+            response = "STORED"
             self.wfile.write(response.encode("utf-8"))
         #Return information as JSON payload 
         elif parsedBody[0] == "Quit":
             userInfo.delete(parsedBody[1])
-            userFiles.delete(parsedBody[2])
+            userFiles.delete(parsedBody[1])
         else:
             print("Didn't receive proper request")
         print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
-        self.send_response(200)
-        self.end_headers()
 
         #This is all for response to request caller
         # response = BytesIO()
