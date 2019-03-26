@@ -76,13 +76,15 @@ def connect():
 		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
 		try:
 			r = requests.post(URL, data=connectInput)
-			print(r.text + "\nKILLME")
+			print(r.text)
 			if r.text == "CONNECTED":
 				try:
 					with open('./file_descriptions.txt', 'r') as myfile:
 						data=myfile.read().replace('\n', '')
 					input = "File_" + usrText.get() + "_" + data
-					print(input)
+					print("The input is: " + input)
+					q = requests.post(URL, data=input)
+					print("The response is: " + q.text)
 					#User_username_hostname_connection
 					#jstring = json.loads(data)
 					#curl -d input
@@ -128,6 +130,8 @@ fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its fil
 def key_search():
 	# defining a params dict for the parameters to be sent to the API
 	# PARAMS = {'search':kywordText.get()}
+	fileTree.delete(*fileTree.get_children()) # delete all entries of the grid
+
 	url = "http://" + shText.get() + "/?search=" + kywordText.get()
 
 # sending get request and saving the response as response object
@@ -139,10 +143,10 @@ def key_search():
 		fileTree.insert('', 'end', values=(datastore[value]['connection'] + ' ' + datastore[value]['hostname'] + ' ' + datastore[value]['file'] + ' ' + desc ))
 	#data = r.json()
 	kywordText.delete(0, END)
-	#fileTree.delete(*fileTree.get_children()) # delete all entries of the grid
-	fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-	fileTree.insert('', 'end', values=('hello DaneMAC.local filename.txt "its file but its also a description" '))
-	fileTree.insert('', 'end', values=('hi DaneMAC.local filename.txt "its file ccccccccccccccccccccccccbut its also a description" '))
+
+	# fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
+	# fileTree.insert('', 'end', values=('hello DaneMAC.local filename.txt "its file but its also a description" '))
+	# fileTree.insert('', 'end', values=('hi DaneMAC.local filename.txt "its file ccccccccccccccccccccccccbut its also a description" '))
 
 #Search Button position
 searchButton = Button(searchFrame, text="Search", width=10, command=key_search) #specify which function is called on click

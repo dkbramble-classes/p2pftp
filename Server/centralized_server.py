@@ -3,6 +3,7 @@ from io import BytesIO
 from socketserver import ThreadingMixIn
 import json
 from urllib.parse import urlparse
+import threading
 # https://blog.anvileight.com/posts/simple-python-http-server/
 # https://gist.github.com/bradmontgomery/2219997
 # curl -d "username_hostname_connection" http://localhost
@@ -10,6 +11,11 @@ from urllib.parse import urlparse
 userInfo = {}
 userFiles = {}
 class Database(BaseHTTPRequestHandler):
+    # def __init__(self):
+    #     threading.Thread.__init__(self)
+    #     # self.daemon = True # stop Python from biting ctrl-C
+    #     self.start()
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
