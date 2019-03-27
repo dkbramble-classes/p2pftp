@@ -237,6 +237,7 @@ def usage_error(cmd):
 #This function executes any command entered into the Enter Command text box
 def ftp_go():
 	global connectFlag
+	listbox.delete(0, END)
 	#quit = False
 	#while quit == False:
 	command = entcommText.get()
