@@ -8,7 +8,10 @@ import sys
 import os
 import socket
 from ftplib import FTP
+import json
+import requests
 
+URL = ""
 ftp = FTP('')
 connectFlag = False
 lines = []
@@ -81,6 +84,34 @@ def change_dropdown(*args):
 
 speedDropDown.trace('w', change_dropdown) #set the function to cisciscisicisicisicisicisicisicisicisciisicsicisicisicisiicisiciicsicisicisicisicisii
 
+#When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
+def connect():
+	if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
+		URL = "http://" + shText.get()
+		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
+		try:
+			r = requests.post(URL, data=connectInput)
+			print(r.text + "\nKILLME")
+			if r.text == "CONNECTED":
+				try:
+					with open('./file_descriptions.txt', 'r') as myfile:
+						data=myfile.read().replace('\n', '')
+					input = "File_" + usrText.get() + "_" + data
+					print(input)
+					#User_username_hostname_connection
+					#jstring = json.loads(data)
+					#curl -d input
+		    	# Store configuration file values
+				except FileNotFoundError:
+					print("Issue uploading file descriptions")
+		except requests.exceptions.ConnectionError:
+			print("Couldn't connect to Centralized Server")
+
+
+#Connect button
+connectButton = Button(connFrame, text="Connect", width=10, command=connect)
+connectButton.grid(row=0, column=5, padx = 10)
+
 #Keyword text box and label
 kywordLabel = Label(searchFrame, text="Keyword:", bg = "lightgrey")
 kywordLabel.grid(row=0, column=1)
@@ -109,8 +140,15 @@ fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its fil
 
 #This function takes the input and searches the server for possible filenames.
 #The results of the search are returned into the fileTree table
+#This function takes the input and searches the server for possible filenames.
+#The results of the search are returned into the fileTree table
 def key_search():
-	print(kywordText.get())
+	# defining a params dict for the parameters to be sent to the API
+	PARAMS = {'search':kywordText.get()}
+
+# sending get request and saving the response as response object
+	#r = requests.get(url = URL, params = PARAMS)
+	#data = r.json()
 	kywordText.delete(0, END)
 	#fileTree.delete(*fileTree.get_children()) # delete all entries of the grid
 	fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
