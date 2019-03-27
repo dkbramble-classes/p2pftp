@@ -12,7 +12,7 @@ import json
 import requests
 
 URL = ""
-ftp = FTP('')
+ftp = FTP(timeout = 2)
 connectFlag = False
 lines = []
 
@@ -85,7 +85,7 @@ def change_dropdown(*args):
 speedDropDown.trace('w', change_dropdown) #set the function to cisciscisicisicisicisicisicisicisicisciisicsicisicisicisiicisiciicsicisicisicisicisii
 
 #When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
-def connect():
+def connectTime():
 	if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
 		URL = "http://" + shText.get()
 		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
@@ -109,7 +109,7 @@ def connect():
 
 
 #Connect button
-connectButton = Button(connFrame, text="Connect", width=10, command=connect)
+connectButton = Button(connFrame, text="Connect", width=10, command=connectTime)
 connectButton.grid(row=0, column=5, padx = 10)
 
 #Keyword text box and label
@@ -175,14 +175,18 @@ def append_line(line):
 
 #Connects user to ftp_server
 def CONNECT(host, port):
-	ftp.connect(host, int(port))
-	ftp.login()
-	ftp.cwd('.') #replace with your directory
-	listbox.insert(END, entcommText.get())
-	conOutput = str("connected to " + host + " " + port)
-	listbox.insert(END, conOutput)
-	connectFlag = True
-	listbox.see(END)
+	try:
+		ftp.connect(host, int(port))
+		ftp.login()
+		ftp.cwd('.') #replace with your directory
+		listbox.insert(END, entcommText.get())
+		conOutput = str("connected to " + host + " " + port)
+		listbox.insert(END, conOutput)
+		connectFlag = True
+		listbox.see(END)
+	except:
+		listbox.insert(END, "connection to " + host + "\'s timed out, please try again later")
+		listbox.see(END)
 
 #Allows the user to view a list of the files on the ftp_server
 def LIST():
