@@ -13,21 +13,21 @@ To start, open a window in Terminal/PowerShell and run the command "python3 (or 
 
 ### Host System (FTP Client/Server):
 
-##:Mac OS
+#### Mac OS
 To start the host system, I dunno.
 The host's ftp directory is the directory in which the program was executed (in this case the 'Host' folder).
 
-##Linux
+#### Linux
 
 ## Host Usage:
 
-###:Connect to the Centralize Server (Top Section)
+### Connect to the Centralize Server (Top Section)
 To get the most out of this program, you will want to first connect to the Centralized Server. To do this, fill in all of the input fields in the top section, choose your connection type, and then hit connect. You may also want to broadcast to others that you have files. To do this, edit the file_descriptions.txt file located in the same directory as the gui, and follow the same formatting as the provided files. This file will be uploaded ti the server when you hit connect. Other hosts will then be able to perform keyword searches based on the file descriptions that you provide.
 
-###:Keyword Searches (Middle Section):
+### Keyword Searches (Middle Section):
 Once you have connected to the Centralized Server, you may perform a keyword search to see if any other hosts on your network have a file with a description that includes the given keyword. To search, enter any one word into the text box (more than one word is not accepted) MAYBE. The centralized server will then return all files where the keyword is present in the description and will place them in the table in the middle section of the GUI.
 
-###:FTP Server/Client (Bottom Section):
+### FTP Server/Client (Bottom Section):
 Once you have seen the available hosts on the network you may wish transfer files to and from their machine. To do this, enter a command into the "Enter Command" text box and hit the "Go" button. The usage for the commands is as follows:
 
     CONNECT <server name/IP address> : This command allows the host to connect to another host's server. The arguments are the IP address of the server and the port number on which the server is listening for connections. For you, this will be the ip/hostname inputted (which will be displayed in the keyword search) on the server and the port number 1026, which is the port number set to every server. This command must be made before any other commands can be made.
