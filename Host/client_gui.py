@@ -4,6 +4,14 @@ from tkinter import * #Importation of the GUI objects
 from tkinter import ttk #Allows for the Treeview object
 import local_server
 import threading
+import sys
+import os
+import socket
+from ftplib import FTP
+
+ftp = FTP('')
+connectFlag = False
+lines = []
 
 host_server = local_server.ftp_server()
 srv = threading.Thread(target=host_server.run, daemon=True)
@@ -123,13 +131,107 @@ entcommText.grid(row=0, column=2, pady = 10)
 listbox = Listbox(ftpFrame, width = 70)
 listbox.grid(row=1, column=2)
 
-#Example of inserting into listbox
-# listbox.insert(END, "Hello")
-# listbox.insert(END, "HI")
+#Appends each line in the list "Lines"
+def append_line(line):
+    lines.append(line)
 
+#Connects user to ftp_server
+def CONNECT(host, port):
+	ftp.connect(host, int(port))
+	ftp.login()
+	ftp.cwd('.') #replace with your directory
+	listbox.insert(END, entcommText.get())
+	conOutput = str("connected to " + host + " " + port)
+	listbox.insert(END, conOutput)
+	connectFlag = True
+
+#Allows the user to view a list of the files on the ftp_server
+def LIST():
+	ftp.retrlines('NLST', append_line)
+	for i in lines:
+		listbox.insert(END, i)
+
+
+#stores files to the server directory
+#file -  the name of the file to be stored on the server
+def STORE(file):
+    #stores files to the server directory
+    if os.path.isfile(file):
+        ftp.storbinary('STOR '+ file, open(file, 'rb'))
+        storeFile = str("Sucessfully stored " + file)
+        listbox.insert(END, storeFile)
+    else:
+        storeFail = str("File does not exist")
+        listbox.insert(END, storeFail)
+
+#retrieves files from the server directory
+#file_dl -  the name of the file to be retrieved from the server
+def RETRIEVE(file_dl):
+    if file_dl in ftp.nlst():
+        for name, types in ftp.mlsd("",["type"]):
+            if file_dl == name and types["type"] == 'dir':
+                retrDir = str("File is directory, cannot retrieve")
+                listbox.insert(END, retrDir)
+                return
+        localfile = open(file_dl, 'wb')
+        ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
+
+        localfile.close()
+        retrOutput = str("Retrieved file " + file_dl)
+        listbox.insert(END, retrOutput)
+    else:
+        retrFail = str("File wasn't found")
+        listbox.insert(END, retrFail)
+
+connectFlag = False
 #This function executes any command entered into the Enter Command text box
 def ftp_go():
-	listbox.see(END)
+	global connectFlag
+	#quit = False
+	#while quit == False:
+	command = entcommText.get()
+	os.system('cls' if os.name == 'nt' else 'clear')#clears terminal output
+	function = command.split(' ', 3) #splice the input into a list delimited by spaces
+	if connectFlag == False: #only allow the commands connect and quit when not connected to a server
+		if function[0].upper() == "CONNECT":
+			if len(function) == 3: # if the right number of parameters
+				if os.name == 'nt':
+					response = os.system("ping " + function[1]) #ping the server to see if it's on the network
+				else:
+					response = os.system("ping -c 1 " + function[1]) #ping the server to see if it's on the network
+				if response == 0: #if ping successful
+					CONNECT(function[1], function[2])
+					connectFlag = True
+				else:
+					print("IP address / Host name not valid, please try again")
+			else:
+				usage_error(function[0])
+		elif function[0].upper() == "QUIT":
+			quit = True
+		else:
+			print("Need to connect to the server first!")
+			print("Usage: CONNECT <server name/IP address> <server port>")
+	else:
+		if function[0].upper() == "RETRIEVE":
+			if len(function) == 2:
+				RETRIEVE(function[1]) #retrieve file
+			else:
+				usage_error(function[0])
+		elif function[0].upper() == "STORE":
+			if len(function) == 2:
+				STORE(function[1]) #store file
+			else:
+				usage_error(function[0])
+		elif function[0].upper() == "LIST":
+			LIST() #list server directory
+		elif function[0].upper() == "QUIT":
+			ftp.close()
+			quit = True
+		elif function[0].upper() == "CONNECT":
+			print("Already connected to a server!")
+		else:
+			usage_error(function[0])
+
 	entcommText.delete(0, END)
 
 goButton = Button(ftpFrame, text="Go", width=10, command=ftp_go)
