@@ -166,7 +166,7 @@ entcommText = Entry(ftpFrame, relief = GROOVE, width = 60)
 entcommText.grid(row=0, column=2, pady = 10)
 
 #listbox keeps track of commands made and any communications between the hosts
-listbox = Listbox(ftpFrame, width = 70)
+listbox = Listbox(ftpFrame, width = 90)
 listbox.grid(row=1, column=2)
 
 #Appends each line in the list "Lines"
@@ -182,12 +182,14 @@ def CONNECT(host, port):
 	conOutput = str("connected to " + host + " " + port)
 	listbox.insert(END, conOutput)
 	connectFlag = True
+	listbox.see(END)
 
 #Allows the user to view a list of the files on the ftp_server
 def LIST():
 	ftp.retrlines('NLST', append_line)
 	for i in lines:
 		listbox.insert(END, i)
+	listbox.see(END)
 
 
 #stores files to the server directory
@@ -198,9 +200,12 @@ def STORE(file):
         ftp.storbinary('STOR '+ file, open(file, 'rb'))
         storeFile = str("Sucessfully stored " + file)
         listbox.insert(END, storeFile)
+        listbox.see(END)
+
     else:
         storeFail = str("File does not exist")
         listbox.insert(END, storeFail)
+
 
 #retrieves files from the server directory
 #file_dl -  the name of the file to be retrieved from the server
@@ -217,11 +222,18 @@ def RETRIEVE(file_dl):
         localfile.close()
         retrOutput = str("Retrieved file " + file_dl)
         listbox.insert(END, retrOutput)
+        listbox.see(END)
     else:
         retrFail = str("File wasn't found")
         listbox.insert(END, retrFail)
+        listbox.see(END)
 
 connectFlag = False
+def usage_error(cmd):
+    if cmd != '':
+        listbox.insert(END, "improper usage of '" + cmd + "\'")
+    listbox.insert(END, "Commands: \n\t CONNECT <server name/IP address> <server port> \n\t LIST \n\t RETRIEVE <filename> \n\t STORE <filename> \n\t QUIT")
+
 #This function executes any command entered into the Enter Command text box
 def ftp_go():
 	global connectFlag
@@ -241,14 +253,19 @@ def ftp_go():
 					CONNECT(function[1], function[2])
 					connectFlag = True
 				else:
-					print("IP address / Host name not valid, please try again")
+					listbox.insert(END, "IP address / Host name not valid, please try again")
+					listbox.see(END)
+					#print("IP address / Host name not valid, please try again")
 			else:
 				usage_error(function[0])
 		elif function[0].upper() == "QUIT":
 			quit = True
 		else:
-			print("Need to connect to the server first!")
-			print("Usage: CONNECT <server name/IP address> <server port>")
+			listbox.insert(END, "Need to connect to the server first!")
+			listbox.insert(END, "Usage: CONNECT <server name/IP address> <server port>")
+			listbox.see(END)
+			#print("Need to connect to the server first!")
+			#print("Usage: CONNECT <server name/IP address> <server port>")
 	else:
 		if function[0].upper() == "RETRIEVE":
 			if len(function) == 2:
@@ -265,8 +282,12 @@ def ftp_go():
 		elif function[0].upper() == "QUIT":
 			ftp.close()
 			quit = True
+			connectFlag = False
+			listbox.insert(END, "Disconnected from server")
 		elif function[0].upper() == "CONNECT":
-			print("Already connected to a server!")
+			listbox.insert(END, "Already connected to a server!")
+			listbox.see(END)
+			#print("Already connected to a server!")
 		else:
 			usage_error(function[0])
 
