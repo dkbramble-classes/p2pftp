@@ -190,49 +190,69 @@ def CONNECT(host, port):
 
 #Allows the user to view a list of the files on the ftp_server
 def LIST():
-	ftp.retrlines('NLST', append_line)
-	for i in lines:
-		listbox.insert(END, i)
-	listbox.see(END)
+	global connectFlag
+	try:
+		ftp.retrlines('NLST', append_line)
+		for i in lines:
+			listbox.insert(END, i)
+		listbox.see(END)
+	except EOFError:
+		nonList = str("Server has cut connections with all hosts, cannot view files")
+		listbox.insert(END, nonList)
+		connectFlag = False
 
 
 #stores files to the server directory
 #file -  the name of the file to be stored on the server
 def STORE(file):
-    #stores files to the server directory
-    if os.path.isfile(file):
-        ftp.storbinary('STOR '+ file, open(file, 'rb'))
-        storeFile = str("Sucessfully stored " + file)
-        listbox.insert(END, storeFile)
-        listbox.see(END)
+	#stores files to the server directory
+	global connectFlag
+	try:
+		ftp.size("dummyfile.txt")
+		if os.path.isfile(file):
+				ftp.storbinary('STOR '+ file, open(file, 'rb'))
+				storeFile = str("Sucessfully stored " + file)
+				listbox.insert(END, storeFile)
+				listbox.see(END)
+		else:
+			storeFail = str("File does not exist")
+			listbox.insert(END, storeFail)
+	except:
+		nonStore = str("Server has cut connections with all hosts, cannot store a file")
+		listbox.insert(END, nonStore)
+		connectFlag = False
 
-    else:
-        storeFail = str("File does not exist")
-        listbox.insert(END, storeFail)
+
+
 
 
 #retrieves files from the server directory
 #file_dl -  the name of the file to be retrieved from the server
 def RETRIEVE(file_dl):
-    if file_dl in ftp.nlst():
-        for name, types in ftp.mlsd("",["type"]):
-            if file_dl == name and types["type"] == 'dir':
-                retrDir = str("File is directory, cannot retrieve")
-                listbox.insert(END, retrDir)
-                return
-        localfile = open(file_dl, 'wb')
-        ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
+	global connectFlag
+	try:
+		if file_dl in ftp.nlst():
+		    for name, types in ftp.mlsd("",["type"]):
+		        if file_dl == name and types["type"] == 'dir':
+		            retrDir = str("File is directory, cannot retrieve")
+		            listbox.insert(END, retrDir)
+		            return
+		    localfile = open(file_dl, 'wb')
+		    ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
 
-        localfile.close()
-        retrOutput = str("Retrieved file " + file_dl)
-        listbox.insert(END, retrOutput)
-        listbox.see(END)
-    else:
-        retrFail = str("File wasn't found")
-        listbox.insert(END, retrFail)
-        listbox.see(END)
+		    localfile.close()
+		    retrOutput = str("Retrieved file " + file_dl)
+		    listbox.insert(END, retrOutput)
+		    listbox.see(END)
+		else:
+		    retrFail = str("File wasn't found")
+		    listbox.insert(END, retrFail)
+		    listbox.see(END)
+	except BrokenPipeError:
+		nonRetr = str("Server has cut connections with all hosts, cannot retrieve a file")
+		listbox.insert(END, nonRetr)
+		connectFlag = False
 
-connectFlag = False
 def usage_error(cmd):
     if cmd != '':
         listbox.insert(END, "improper usage of '" + cmd + "\'")
@@ -240,6 +260,8 @@ def usage_error(cmd):
 
 #This function executes any command entered into the Enter Command text box
 def ftp_go():
+	global lines
+	lines = []
 	global connectFlag
 	listbox.delete(0, END)
 	#quit = False
