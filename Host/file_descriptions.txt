@@ -1,7 +1,7 @@
 {
- \"local_server.py\": \"Insert Description Here\",
+ "local_server.py": "Insert Description Here",
 
- \"ftp_client.py\": \"Look, More Descriptions\",
+ "ftp_client.py": "Look, More Descriptions",
 
- \"client_gui.py\": \"DESCRIPTIONS\"
+ "client_gui.py": "DESCRIPTIONS"
 }

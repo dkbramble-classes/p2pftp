@@ -4,10 +4,6 @@ from tkinter import * #Importation of the GUI objects
 from tkinter import ttk #Allows for the Treeview object
 import local_server
 import threading
-<<<<<<< HEAD
-import json
-import requests
-=======
 import sys
 import os
 import socket
@@ -19,7 +15,6 @@ URL = ""
 ftp = FTP(timeout = 2)
 connectFlag = False
 lines = []
->>>>>>> master
 
 host_server = local_server.ftp_server()
 srv = threading.Thread(target=host_server.run, daemon=True)
@@ -84,13 +79,13 @@ def change_dropdown(*args):
 speedDropDown.trace('w', change_dropdown) #set the function to
 
 #When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
-def connect():
+def connectTime():
 	if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
 		URL = "http://" + shText.get()
 		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
 		try:
 			r = requests.post(URL, data=connectInput)
-			print(r.text)
+			print("The response for connection is: " + r.text)
 			if r.text == "CONNECTED":
 				try:
 					with open('./file_descriptions.txt', 'r') as myfile:
@@ -99,34 +94,6 @@ def connect():
 					print("The input is: " + input)
 					q = requests.post(URL, data=input)
 					print("The response is: " + q.text)
-					#User_username_hostname_connection
-					#jstring = json.loads(data)
-					#curl -d input
-		    	# Store configuration file values
-				except FileNotFoundError:
-					print("Issue uploading file descriptions")
-		except requests.exceptions.ConnectionError:
-			print("Couldn't connect to Centralized Server")
-
-
-#Connect button
-connectButton = Button(connFrame, text="Connect", width=10, command=connect)
-connectButton.grid(row=0, column=5, padx = 10)
-
-#When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
-def connectTime():
-	if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
-		URL = "http://" + shText.get()
-		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
-		try:
-			r = requests.post(URL, data=connectInput)
-			print(r.text + "\nKILLME")
-			if r.text == "CONNECTED":
-				try:
-					with open('./file_descriptions.txt', 'r') as myfile:
-						data=myfile.read().replace('\n', '')
-					input = "File_" + usrText.get() + "_" + data
-					print(input)
 					#User_username_hostname_connection
 					#jstring = json.loads(data)
 					#curl -d input
@@ -173,7 +140,6 @@ fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its fil
 #The results of the search are returned into the fileTree table
 def key_search():
 	# defining a params dict for the parameters to be sent to the API
-<<<<<<< HEAD
 	# PARAMS = {'search':kywordText.get()}
 	fileTree.delete(*fileTree.get_children()) # delete all entries of the grid
 
@@ -186,12 +152,6 @@ def key_search():
 	for value in datastore:
 		desc = "\ ".join(datastore[value]['description'].split(' '))
 		fileTree.insert('', 'end', values=(datastore[value]['connection'] + ' ' + datastore[value]['hostname'] + ' ' + datastore[value]['file'] + ' ' + desc ))
-=======
-	PARAMS = {'search':kywordText.get()}
-
-# sending get request and saving the response as response object
-	#r = requests.get(url = URL, params = PARAMS)
->>>>>>> master
 	#data = r.json()
 	kywordText.delete(0, END)
 
