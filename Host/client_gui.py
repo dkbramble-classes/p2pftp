@@ -335,8 +335,9 @@ goButton.grid(row=0, column=3, padx = 10)
 #This is responsible for the gui remaining open. This will end when the window is closed
 screen.mainloop()
 
-input = "Quit_" + quitUser
+if connected:
+	input = "Quit_" + quitUser
 
-r = requests.post(quitURL, data=input)
-if r.text == "DELETED":
-	print("Sucessfully disconnected")
+	r = requests.post(quitURL, data=input)
+	if r.text == "DELETED":
+		print("Sucessfully disconnected")
