@@ -11,16 +11,16 @@ from ftplib import FTP
 import json
 import requests
 
-URL = ""
+quitURL = ""
+quitUser = ""
 ftp = FTP(timeout = 2)
 connectFlag = False
 lines = []
+connected = False
 
 host_server = local_server.ftp_server()
 srv = threading.Thread(target=host_server.run, daemon=True)
 srv.start()
-
-URL = ""
 
 #Main window screen
 screen = Tk()
@@ -80,28 +80,37 @@ speedDropDown.trace('w', change_dropdown) #set the function to
 
 #When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
 def connectTime():
-	if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
-		URL = "http://" + shText.get()
-		connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
-		try:
-			r = requests.post(URL, data=connectInput)
-			print("The response for connection is: " + r.text)
-			if r.text == "CONNECTED":
-				try:
-					with open('./file_descriptions.txt', 'r') as myfile:
-						data=myfile.read().replace('\n', '')
-					input = "File_" + usrText.get() + "_" + data
-					print("The input is: " + input)
-					q = requests.post(URL, data=input)
-					print("The response is: " + q.text)
-					#User_username_hostname_connection
-					#jstring = json.loads(data)
-					#curl -d input
-		    	# Store configuration file values
-				except FileNotFoundError:
-					print("Issue uploading file descriptions")
-		except requests.exceptions.ConnectionError:
-			print("Couldn't connect to Centralized Server")
+	global connected
+	if not connected:
+		if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
+			URL = "http://" + shText.get()
+			connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
+			try:
+				r = requests.post(URL, data=connectInput)
+				print("The response for connection is: " + r.text)
+				if r.text == "CONNECTED":
+					try:
+						connected = True
+						global quitURL
+						global quitUser
+						quitURL = URL
+						quitUser = usrText.get()
+						with open('./file_descriptions.txt', 'r') as myfile:
+							data=myfile.read().replace('\n', '')
+						input = "File_" + usrText.get() + "_" + data
+						print("The input is: " + input)
+						q = requests.post(URL, data=input)
+						print("The response is: " + q.text)
+						#User_username_hostname_connection
+						#jstring = json.loads(data)
+						#curl -d input
+			    		# Store configuration file values
+					except FileNotFoundError:
+						print("Issue uploading file descriptions")
+			except requests.exceptions.ConnectionError:
+				print("Couldn't connect to Centralized Server")
+	else:
+		print("You're already connected to a server!")
 
 
 #Connect button
@@ -129,10 +138,6 @@ fileTree.heading('filename', text="Filename")
 fileTree.heading('description', text="Description")
 fileTree.grid(row = 1, column = 2)
 #Insert values into table, values are seperated by space, use "" if it is one item
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
 
 #This function takes the input and searches the server for possible filenames.
 #The results of the search are returned into the fileTree table
@@ -307,3 +312,9 @@ goButton.grid(row=0, column=3, padx = 10)
 
 #This is responsible for the gui remaining open. This will end when the window is closed
 screen.mainloop()
+
+input = "Quit_" + quitUser
+
+r = requests.post(quitURL, data=input)
+if r.text == "DELETED":
+	print("Sucessfully disconnected")

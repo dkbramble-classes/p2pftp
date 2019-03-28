@@ -14,10 +14,6 @@ class ThreadingSimpleServer(ThreadingMixIn, HTTPServer):
 userInfo = {}
 userFiles = {}
 class Database(BaseHTTPRequestHandler):
-    # def __init__(self):
-    #     threading.Thread.__init__(self)
-    #     # self.daemon = True # stop Python from biting ctrl-C
-    #     self.start()
 
     def _set_headers(self):
         self.send_response(200)
@@ -34,10 +30,8 @@ class Database(BaseHTTPRequestHandler):
         response = {}
         print(search[1])
         for username in userFiles:
-            print("Username is: " + username)
             for file in userFiles[username]:
-                print("Filename is: " + file)
-                if search[1] in userFiles[username][file]:
+                if search[1].lower() in userFiles[username][file].lower():
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
                         "connection": userInfo[username]["connection"],
@@ -45,7 +39,7 @@ class Database(BaseHTTPRequestHandler):
                         "description": userFiles[username][file]
                     }
                     x += 1
-                    print("File: " + file + " Description: \"" + userFiles[username][file] + "\" Added to response")
+                    print("File: " + file + " with Description: \"" + userFiles[username][file] + "\" found for search result.")
 
         self.send_response(200)
         self.end_headers()
@@ -75,6 +69,7 @@ class Database(BaseHTTPRequestHandler):
             self.end_headers()
             response = "CONNECTED"
             self.wfile.write(response.encode("utf-8"))
+            print("User " + parsedBody[1] + " connected to the server.")
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         #The JSON text that we send here to the server needs to have escape characters 
         # This worked: curl -d "File_Dane_{\"local_server.py\":\"Insert Description Here\",\"ftp_client.py\":\"Look, More Descriptions\",\"client_gui.py\":\"DESCRIPTIONS\" }" http://Lukes-MacBook-Pro-2.local
@@ -86,6 +81,7 @@ class Database(BaseHTTPRequestHandler):
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
+            print("Files being uploaded:")
             for file in datastore:
                 print(file)
                 userFiles[parsedBody[1]][file] =  datastore[file]
@@ -95,8 +91,13 @@ class Database(BaseHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
         #Return information as JSON payload 
         elif parsedBody[0] == "Quit":
-            userInfo.delete(parsedBody[1])
-            userFiles.delete(parsedBody[1])
+            userInfo.pop(parsedBody[1])
+            userFiles.pop(parsedBody[1])
+            self.send_response(200)
+            self.end_headers()
+            response = "DELETED"
+            self.wfile.write(response.encode("utf-8"))
+            print("Disconnected user " + parsedBody[1])
         else:
             print("Didn't receive proper request. Request given: ", parsedBody)
         print("This is the body: " + strBody)
