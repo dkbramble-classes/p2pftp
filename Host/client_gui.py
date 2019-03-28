@@ -87,7 +87,7 @@ def connectTime():
 			connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
 			try:
 				r = requests.post(URL, data=connectInput)
-				print("The response for connection is: " + r.text)
+				print(r.text)
 				if r.text == "CONNECTED":
 					try:
 						connected = True
@@ -98,7 +98,6 @@ def connectTime():
 						with open('./file_descriptions.txt', 'r') as myfile:
 							data=myfile.read().replace('\n', '')
 						input = "File_" + usrText.get() + "_" + data
-						print("The input is: " + input)
 						q = requests.post(URL, data=input)
 						print("The response is: " + q.text)
 						#User_username_hostname_connection
