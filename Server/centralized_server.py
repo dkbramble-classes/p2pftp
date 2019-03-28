@@ -36,7 +36,7 @@ class Database(BaseHTTPRequestHandler):
         for username in userFiles:
             print("Username is: " + username)
             for file in userFiles[username]:
-                print("filename is: " + file)
+                print("Filename is: " + file)
                 if search[1] in userFiles[username][file]:
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
@@ -45,7 +45,7 @@ class Database(BaseHTTPRequestHandler):
                         "description": userFiles[username][file]
                     }
                     x += 1
-                    print("File " + file + " with description \"" + userFiles[username][file] + "\" Added to response")
+                    print("File: " + file + " Description: \"" + userFiles[username][file] + "\" Added to response")
 
         self.send_response(200)
         self.end_headers()
@@ -82,7 +82,7 @@ class Database(BaseHTTPRequestHandler):
             jsonString = parsedBody[2]
             for x in range(3, len(parsedBody)):
                 jsonString += "_" + str(parsedBody[x])
-            print("jsonString is: " + jsonString)
+            print("jsonString: " + jsonString)
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
@@ -98,7 +98,7 @@ class Database(BaseHTTPRequestHandler):
             userInfo.delete(parsedBody[1])
             userFiles.delete(parsedBody[1])
         else:
-            print("Didn't receive proper request")
+            print("Didn't receive proper request. Request given: ", parsedBody)
         print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
 
