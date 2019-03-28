@@ -37,7 +37,7 @@ class Database(BaseHTTPRequestHandler):
             print("Username is: " + username)
             for file in userFiles[username]:
                 print("filename is: " + file)
-                if search[1] in userFiles[username][file]:
+                if search[1].lower() in userFiles[username][file].lower():
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
                         "connection": userInfo[username]["connection"],
@@ -95,8 +95,14 @@ class Database(BaseHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
         #Return information as JSON payload 
         elif parsedBody[0] == "Quit":
-            userInfo.delete(parsedBody[1])
-            userFiles.delete(parsedBody[1])
+            print("Entered Quit sucessfully!")
+            userInfo.pop(parsedBody[1])
+            userFiles.pop(parsedBody[1])
+            self.send_response(200)
+            self.end_headers()
+            response = "DELETED"
+            self.wfile.write(response.encode("utf-8"))
+            print("Disconnected user " + parsedBody[1])
         else:
             print("Didn't receive proper request")
         print("This is the body: " + strBody)
