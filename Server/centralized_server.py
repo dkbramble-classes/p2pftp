@@ -99,7 +99,7 @@ class Database(BaseHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
             print("Disconnected user " + parsedBody[1])
         else:
-            print("Didn't receive proper request. Request given: ", parsedBody)
+            print("Didn't receive proper request. Request given: " + parsedBody[0])
         print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
 
