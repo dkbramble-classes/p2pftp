@@ -34,9 +34,7 @@ class Database(BaseHTTPRequestHandler):
         response = {}
         print(search[1])
         for username in userFiles:
-            print("Username is: " + username)
             for file in userFiles[username]:
-                print("filename is: " + file)
                 if search[1].lower() in userFiles[username][file].lower():
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
@@ -45,7 +43,7 @@ class Database(BaseHTTPRequestHandler):
                         "description": userFiles[username][file]
                     }
                     x += 1
-                    print("File " + file + " with description \"" + userFiles[username][file] + "\" Added to response")
+                    print("File: " + file + " with Description: \"" + userFiles[username][file] + "\" found for search result.")
 
         self.send_response(200)
         self.end_headers()
@@ -82,7 +80,7 @@ class Database(BaseHTTPRequestHandler):
             jsonString = parsedBody[2]
             for x in range(3, len(parsedBody)):
                 jsonString += "_" + str(parsedBody[x])
-            print("jsonString is: " + jsonString)
+            print("jsonString: " + jsonString)
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
@@ -103,7 +101,7 @@ class Database(BaseHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
             print("Disconnected user " + parsedBody[1])
         else:
-            print("Didn't receive proper request")
+            print("Didn't receive proper request. Request given: ", parsedBody)
         print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
 
