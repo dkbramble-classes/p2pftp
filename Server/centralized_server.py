@@ -14,10 +14,6 @@ class ThreadingSimpleServer(ThreadingMixIn, HTTPServer):
 userInfo = {}
 userFiles = {}
 class Database(BaseHTTPRequestHandler):
-    # def __init__(self):
-    #     threading.Thread.__init__(self)
-    #     # self.daemon = True # stop Python from biting ctrl-C
-    #     self.start()
 
     def _set_headers(self):
         self.send_response(200)
@@ -73,6 +69,7 @@ class Database(BaseHTTPRequestHandler):
             self.end_headers()
             response = "CONNECTED"
             self.wfile.write(response.encode("utf-8"))
+            print("User " + parsedBody[1] + " connected to the server.")
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         #The JSON text that we send here to the server needs to have escape characters 
         # This worked: curl -d "File_Dane_{\"local_server.py\":\"Insert Description Here\",\"ftp_client.py\":\"Look, More Descriptions\",\"client_gui.py\":\"DESCRIPTIONS\" }" http://Lukes-MacBook-Pro-2.local
@@ -84,6 +81,7 @@ class Database(BaseHTTPRequestHandler):
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
+            print("Files being uploaded:")
             for file in datastore:
                 print(file)
                 userFiles[parsedBody[1]][file] =  datastore[file]
