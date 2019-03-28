@@ -8,6 +8,9 @@ import threading
 # https://gist.github.com/bradmontgomery/2219997
 # curl -d "username_hostname_connection" http://localhost
 
+class ThreadingSimpleServer(ThreadingMixIn, HTTPServer):
+    pass
+
 userInfo = {}
 userFiles = {}
 class Database(BaseHTTPRequestHandler):
@@ -107,8 +110,8 @@ class Database(BaseHTTPRequestHandler):
         # self.wfile.write(response.getvalue())
         
 def run(server_class=HTTPServer, handler_class=Database, port=80):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
+    server_address = '0.0.0.0'
+    httpd = ThreadingSimpleServer((server_address, port), handler_class)
     httpd.serve_forever()
 
 if __name__ == "__main__":
