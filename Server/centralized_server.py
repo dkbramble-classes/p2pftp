@@ -3,6 +3,7 @@ from io import BytesIO
 from socketserver import ThreadingMixIn
 import json
 from urllib.parse import urlparse
+import threading
 # https://blog.anvileight.com/posts/simple-python-http-server/
 # https://gist.github.com/bradmontgomery/2219997
 # curl -d "username_hostname_connection" http://localhost
@@ -13,6 +14,7 @@ class ThreadingSimpleServer(ThreadingMixIn, HTTPServer):
 userInfo = {}
 userFiles = {}
 class Database(BaseHTTPRequestHandler):
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -28,8 +30,8 @@ class Database(BaseHTTPRequestHandler):
         response = {}
         print(search[1])
         for username in userFiles:
-            for file in username:
-                if search[1] in userFiles[username][file]:
+            for file in userFiles[username]:
+                if search[1].lower() in userFiles[username][file].lower():
                     response[x] = {
                         "hostname": userInfo[username]["hostname"],
                         "connection": userInfo[username]["connection"],
@@ -37,10 +39,15 @@ class Database(BaseHTTPRequestHandler):
                         "description": userFiles[username][file]
                     }
                     x += 1
+                    print("File: " + file + " with Description: \"" + userFiles[username][file] + "\" found for search result.")
+
         self.send_response(200)
         self.end_headers()
-        response = "Get Gotten"
-        self.wfile.write(response.encode("utf-8"))
+        responseStr = json.dumps(response)
+        print("The response should be: " + responseStr)
+        self.wfile.write(responseStr.encode("utf-8"))
+        # testResponse = "SEARCHED"
+        # self.wfile.write(testResponse.encode("utf-8"))
 
         #query_components = dict(qc.split("=") for qc in query.split("&"))
 
@@ -58,8 +65,11 @@ class Database(BaseHTTPRequestHandler):
                 "hostname": parsedBody[2],
                 "connection": parsedBody[3]
             }
-            response = "The User storage has been sucessful!!!!!!"
+            self.send_response(200)
+            self.end_headers()
+            response = "CONNECTED"
             self.wfile.write(response.encode("utf-8"))
+            print("User " + parsedBody[1] + " connected to the server.")
         #Otherwise if the information is for a file, store the file name and descritpion as a list of dictionaries under the username
         #The JSON text that we send here to the server needs to have escape characters 
         # This worked: curl -d "File_Dane_{\"local_server.py\":\"Insert Description Here\",\"ftp_client.py\":\"Look, More Descriptions\",\"client_gui.py\":\"DESCRIPTIONS\" }" http://Lukes-MacBook-Pro-2.local
@@ -67,25 +77,31 @@ class Database(BaseHTTPRequestHandler):
             jsonString = parsedBody[2]
             for x in range(3, len(parsedBody)):
                 jsonString += "_" + str(parsedBody[x])
-            print(jsonString)
+            print("jsonString: " + jsonString)
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
+            print("Files being uploaded:")
             for file in datastore:
                 print(file)
                 userFiles[parsedBody[1]][file] =  datastore[file]
-            response = "The File Description storage has been sucessful!!!!!!"
+            self.send_response(200)
+            self.end_headers()
+            response = "STORED"
             self.wfile.write(response.encode("utf-8"))
         #Return information as JSON payload 
         elif parsedBody[0] == "Quit":
-            userInfo.delete(parsedBody[1])
-            userFiles.delete(parsedBody[2])
+            userInfo.pop(parsedBody[1])
+            userFiles.pop(parsedBody[1])
+            self.send_response(200)
+            self.end_headers()
+            response = "DELETED"
+            self.wfile.write(response.encode("utf-8"))
+            print("Disconnected user " + parsedBody[1])
         else:
-            print("Didn't receive proper request")
+            print("Didn't receive proper request. Request given: ", parsedBody)
         print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
-        self.send_response(200)
-        self.end_headers()
 
         #This is all for response to request caller
         # response = BytesIO()
