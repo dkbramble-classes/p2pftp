@@ -129,10 +129,6 @@ fileTree.heading('filename', text="Filename")
 fileTree.heading('description', text="Description")
 fileTree.grid(row = 1, column = 2)
 #Insert values into table, values are seperated by space, use "" if it is one item
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
 
 #This function takes the input and searches the server for possible filenames.
 #The results of the search are returned into the fileTree table
