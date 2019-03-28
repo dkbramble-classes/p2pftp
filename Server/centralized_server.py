@@ -95,7 +95,6 @@ class Database(BaseHTTPRequestHandler):
             self.wfile.write(response.encode("utf-8"))
         #Return information as JSON payload 
         elif parsedBody[0] == "Quit":
-            print("Entered Quit sucessfully!")
             userInfo.pop(parsedBody[1])
             userFiles.pop(parsedBody[1])
             self.send_response(200)
