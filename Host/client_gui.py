@@ -1,23 +1,29 @@
 #Authors: Luke Bassett, Dane Bramble, Patrik Kozak, Brendan Warnick
-#This is a Client/Server program that contain
+#This is a Client/Server host program that connects to a centralized http server and allows interactions with other ftp servers
 from tkinter import * #Importation of the GUI objects
 from tkinter import ttk #Allows for the Treeview object
-import local_server
-import threading
+import local_server #local file to run ftp server on startup
+import threading #to start new thread for ftp server
+#system interaction
 import sys
 import os
 import socket
-from ftplib import FTP
+
+from ftplib import FTP #For ftp client commands
+
+#For http post and get requests
 import json
 import requests
 
+#Set Global variables to reference when the gui is exited
 quitURL = ""
 quitUser = ""
-ftp = FTP(timeout = 2)
-connectFlag = False
-lines = []
-connected = False
+ftp = FTP(timeout = 2) #creation of ftp object, timeout is set in case the server does not exist
+connectFlag = False #True if connected to an ftp server
+lines = [] #Contents of ftp list function
+connectedCent = False #True if connected to the centralized server
 
+#Start the ftp server for your local machine on a different thread, kill the thread when the program ends
 host_server = local_server.ftp_server()
 srv = threading.Thread(target=host_server.run, daemon=True)
 srv.start()
@@ -78,32 +84,28 @@ def change_dropdown(*args):
 
 speedDropDown.trace('w', change_dropdown) #set the function to
 
-#When the "Connect" button is clicked, this function take the text input fields and uses them to connect to the centralized server
+#When the "Connect" button is clicked, this function takes the text input fields and uses them to connect to the centralized server
 def connectTime():
-	global connected
-	if not connected:
-		if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "":
-			URL = "http://" + shText.get()
-			connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get()
+	global connectedCent
+	if not connectedCent:
+		if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "": # if all of the fileds are filled
+			URL = "http://" + shText.get() #get hostname for centralized server
+			connectInput = "User_" + usrText.get() + "_" + hostText.get() + "_" + speedDropDown.get() # input text info
 			try:
-				r = requests.post(URL, data=connectInput)
+				r = requests.post(URL, data=connectInput) #send the inputs to the http centralized server
 				print(r.text)
-				if r.text == "CONNECTED":
+				if r.text == "CONNECTED": #if the response is correct
 					try:
-						connected = True
+						connectedCent = True
 						global quitURL
 						global quitUser
-						quitURL = URL
+						quitURL = URL #for when the gui is closed
 						quitUser = usrText.get()
 						with open('./file_descriptions.txt', 'r') as myfile:
-							data=myfile.read().replace('\n', '')
-						input = "File_" + usrText.get() + "_" + data
-						q = requests.post(URL, data=input)
+							data=myfile.read().replace('\n', '') #set the contents of file_descriptions.txt to a variable, passes file descriptions to the centralized server
+						input = "File_" + usrText.get() + "_" + data #format the data so it can be sent
+						q = requests.post(URL, data=input) # make the post request
 						print("The response is: " + q.text)
-						#User_username_hostname_connection
-						#jstring = json.loads(data)
-						#curl -d input
-			    		# Store configuration file values
 					except FileNotFoundError:
 						print("Issue uploading file descriptions")
 			except requests.exceptions.ConnectionError:
@@ -159,10 +161,6 @@ def key_search():
 	#data = r.json()
 	kywordText.delete(0, END)
 
-	# fileTree.insert('', 'end', values=('Ethernet DaneMAC.local filename.txt "its file but its also a description" '))
-	# fileTree.insert('', 'end', values=('hello DaneMAC.local filename.txt "its file but its also a description" '))
-	# fileTree.insert('', 'end', values=('hi DaneMAC.local filename.txt "its file ccccccccccccccccccccccccbut its also a description" '))
-
 #Search Button position
 searchButton = Button(searchFrame, text="Search", width=10, command=key_search) #specify which function is called on click
 searchButton.grid(row=0, column=3, padx = 10)
@@ -189,9 +187,9 @@ def CONNECT(host, port):
 		ftp.cwd('.') #replace with your directory
 		listbox.insert(END, entcommText.get())
 		conOutput = str("connected to " + host + " " + port)
-		listbox.insert(END, conOutput)
+		listbox.insert(END, conOutput) #insert responses into the box
 		connectFlag = True
-		listbox.see(END)
+		listbox.see(END) #move box to the end
 	except:
 		listbox.insert(END, "connection to " + host + "\'s timed out, please try again later")
 		listbox.see(END)
@@ -202,9 +200,9 @@ def LIST():
 	try:
 		ftp.retrlines('NLST', append_line)
 		for i in lines:
-			listbox.insert(END, i)
+			listbox.insert(END, i) #insert the results into the box
 		listbox.see(END)
-	except EOFError:
+	except EOFError: #if the server was disconnected after connection was made
 		nonList = str("Server has cut connections with all hosts, cannot view files")
 		listbox.insert(END, nonList)
 		connectFlag = False
@@ -216,8 +214,8 @@ def STORE(file):
 	#stores files to the server directory
 	global connectFlag
 	try:
-		ftp.size("dummyfile.txt")
-		if os.path.isfile(file):
+		ftp.size("dummyfile.txt") #get response from server
+		if os.path.isfile(file): #if the file exists, store it
 				ftp.storbinary('STOR '+ file, open(file, 'rb'))
 				storeFile = str("Sucessfully stored " + file)
 				listbox.insert(END, storeFile)
@@ -225,14 +223,10 @@ def STORE(file):
 		else:
 			storeFail = str("File does not exist")
 			listbox.insert(END, storeFail)
-	except:
+	except: #if the server was disconnected after connection was made
 		nonStore = str("Server has cut connections with all hosts, cannot store a file")
 		listbox.insert(END, nonStore)
 		connectFlag = False
-
-
-
-
 
 #retrieves files from the server directory
 #file_dl -  the name of the file to be retrieved from the server
@@ -247,7 +241,6 @@ def RETRIEVE(file_dl):
 		            return
 		    localfile = open(file_dl, 'wb')
 		    ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
-
 		    localfile.close()
 		    retrOutput = str("Retrieved file " + file_dl)
 		    listbox.insert(END, retrOutput)
@@ -261,6 +254,7 @@ def RETRIEVE(file_dl):
 		listbox.insert(END, nonRetr)
 		connectFlag = False
 
+#This function just prints the actual usage of the ftp
 def usage_error(cmd):
     if cmd != '':
         listbox.insert(END, "improper usage of '" + cmd + "\'")
@@ -299,8 +293,7 @@ def ftp_go():
 			listbox.insert(END, "Need to connect to the server first!")
 			listbox.insert(END, "Usage: CONNECT <server name/IP address> <server port>")
 			listbox.see(END)
-			#print("Need to connect to the server first!")
-			#print("Usage: CONNECT <server name/IP address> <server port>")
+
 	else:
 		if function[0].upper() == "RETRIEVE":
 			if len(function) == 2:
@@ -334,9 +327,9 @@ goButton.grid(row=0, column=3, padx = 10)
 #This is responsible for the gui remaining open. This will end when the window is closed
 screen.mainloop()
 
-if connected:
+#After the gui has ended, send a response to the centralized server to let it know you're not connected
+if connectedCent: #if the centralized server was connected before the gui was closed
 	input = "Quit_" + quitUser
-
 	r = requests.post(quitURL, data=input)
 	if r.text == "DELETED":
 		print("Sucessfully disconnected")
