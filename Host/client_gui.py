@@ -181,18 +181,19 @@ def append_line(line):
 
 #Connects user to ftp_server
 def CONNECT(host, port):
-	try:
-		ftp.connect(host, int(port))
-		ftp.login()
-		ftp.cwd('.') #replace with your directory
-		listbox.insert(END, entcommText.get())
-		conOutput = str("connected to " + host + " " + port)
-		listbox.insert(END, conOutput) #insert responses into the box
-		connectFlag = True
-		listbox.see(END) #move box to the end
-	except:
-		listbox.insert(END, host + "is on the network but the server cannot be found, please try again later")
-		listbox.see(END)
+    global connectFlag
+    try:
+        ftp.connect(host, int(port))
+        ftp.login()
+        ftp.cwd('.') #replace with your directory
+        listbox.insert(END, entcommText.get())
+        conOutput = str("connected to " + host + " " + port)
+        listbox.insert(END, conOutput) #insert responses into the box
+        connectFlag = True
+        listbox.see(END) #move box to the end
+    except:
+        listbox.insert(END, host + "is on the network but the server cannot be found, please try again later")
+        listbox.see(END)
 
 #Allows the user to view a list of the files on the ftp_server
 def LIST():
@@ -206,6 +207,7 @@ def LIST():
 		nonList = str("Server has cut connections with all hosts, cannot view files")
 		listbox.insert(END, nonList)
 		connectFlag = False
+		ftp.close()
 
 
 #stores files to the server directory
@@ -227,6 +229,8 @@ def STORE(file):
 		nonStore = str("Server has cut connections with all hosts, cannot store a file")
 		listbox.insert(END, nonStore)
 		connectFlag = False
+		ftp.close()
+
 
 #retrieves files from the server directory
 #file_dl -  the name of the file to be retrieved from the server
@@ -253,7 +257,7 @@ def RETRIEVE(file_dl):
 		nonRetr = str("Server has cut connections with all hosts, cannot retrieve a file")
 		listbox.insert(END, nonRetr)
 		connectFlag = False
-
+		ftp.close()
 #This function just prints the actual usage of the ftp
 def usage_error(cmd):
     if cmd != '':
@@ -266,8 +270,6 @@ def ftp_go():
 	lines = []
 	global connectFlag
 	listbox.delete(0, END)
-	#quit = False
-	#while quit == False:
 	command = entcommText.get()
 	os.system('cls' if os.name == 'nt' else 'clear')#clears terminal output
 	function = command.split(' ', 3) #splice the input into a list delimited by spaces
@@ -286,8 +288,6 @@ def ftp_go():
 					#print("IP address / Host name not valid, please try again")
 			else:
 				usage_error(function[0])
-		elif function[0].upper() == "QUIT":
-			quit = True
 		else:
 			listbox.insert(END, "Need to connect to the server first!")
 			listbox.insert(END, "Usage: CONNECT <server name/IP address> <server port>")
@@ -308,7 +308,6 @@ def ftp_go():
 			LIST() #list server directory
 		elif function[0].upper() == "QUIT":
 			ftp.close()
-			quit = True
 			connectFlag = False
 			listbox.insert(END, "Disconnected from server")
 		elif function[0].upper() == "CONNECT":
