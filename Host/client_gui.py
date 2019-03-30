@@ -216,14 +216,13 @@ def STORE(file):
 	#stores files to the server directory
 	global connectFlag
 	try:
-		ftp.size("dummyfile.txt") #get response from server
 		if os.path.isfile(file): #if the file exists, store it
 				ftp.storbinary('STOR '+ file, open(file, 'rb'))
 				storeFile = str("Sucessfully stored " + file)
 				listbox.insert(END, storeFile)
 				listbox.see(END)
 		else:
-			storeFail = str("File does not exist")
+			storeFail = str("Please use an existing file")
 			listbox.insert(END, storeFail)
 	except: #if the server was disconnected after connection was made
 		nonStore = str("Server has cut connections with all hosts, cannot store a file")
