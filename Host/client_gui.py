@@ -191,7 +191,7 @@ def CONNECT(host, port):
 		connectFlag = True
 		listbox.see(END) #move box to the end
 	except:
-		listbox.insert(END, "connection to " + host + "\'s timed out, please try again later")
+		listbox.insert(END, host + "is on the network but the server cannot be found, please try again later")
 		listbox.see(END)
 
 #Allows the user to view a list of the files on the ftp_server
@@ -280,7 +280,6 @@ def ftp_go():
 					response = os.system("ping -c 1 " + function[1]) #ping the server to see if it's on the network
 				if response == 0: #if ping successful
 					CONNECT(function[1], function[2])
-					connectFlag = True
 				else:
 					listbox.insert(END, "IP address / Host name not valid, please try again")
 					listbox.see(END)
