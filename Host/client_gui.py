@@ -84,9 +84,13 @@ def change_dropdown(*args):
 
 speedDropDown.trace('w', change_dropdown) #set the function to
 
+connectedLabel = Label(connFrame, text="Connected: No", bg = "lightgrey")
+connectedLabel.grid(row=0, column=6, padx = 10)
+
 #When the "Connect" button is clicked, this function takes the text input fields and uses them to connect to the centralized server
 def connectTime():
 	global connectedCent
+	global connectedLabel
 	if not connectedCent:
 		if shText.get() != "" and usrText.get() != "" and portText.get() != "" and hostText.get() != "" and speedDropDown.get() != "": # if all of the fileds are filled
 			URL = "http://" + shText.get() #get hostname for centralized server
@@ -97,6 +101,7 @@ def connectTime():
 				if r.text == "CONNECTED": #if the response is correct
 					try:
 						connectedCent = True
+						connectedLabel['text'] = 'Connected: Yes'
 						global quitURL
 						global quitUser
 						quitURL = URL #for when the gui is closed
