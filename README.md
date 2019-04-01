@@ -1,5 +1,5 @@
 # CIS 457 Project 2: GV-NAP File Sharing System
-This is a file sharing system that allows users to access a distributed data storage system based on simple keyword search. These programs include a multi-threaded FTP GUI client/server host program and a multi-threaded HTTP centralized server which are primarily designed for Mac OS using pyftpdlib, requests, and python 3.7. The pyftpdlib and requests modules are not needed to run the program if it is ran on Mac OS, as the module is bundled together into an executable via pyinstaller. Python 3 is required however. If you do not have it, you can download it at https://www.python.org/downloads/. Both modules will have to be installed via pip in order to run on other systems.
+This is a file sharing system that allows users to access a distributed data storage system based on simple keyword search. These programs include a multi-threaded FTP GUI client/server host program and a multi-threaded HTTP centralized server which are primarily designed for Mac OS using pyftpdlib, requests, and python 3.7. Python 3 is required to run these programs. If you do not have it, you can download it at https://www.python.org/downloads/. Both the request and pyftpdlib and requests modules will also have to be installed via pip in order to run.
 
 -	The first part is the host system, which can query the server for files using keywords.  The host also has a file transfer client and server.  The ftp client allows a user to access files stored at the remote user locations.  The ftp server is responsible for providing file transfer services requested by a remote client.
 
@@ -9,15 +9,15 @@ This is a file sharing system that allows users to access a distributed data sto
 First, download all of the files from this Github to ensure you have all of the necessary dependencies. Preferably, this processes is done on at least two devices: One device for the centralized server and the host, and another device to run the other host program.
 
 ### Centralized Server (centralized_server.py):
-To start, open a window in Terminal/PowerShell and run the command "python3 (or python if python 3 is natively installed) path/to/repository/p2pftp/Server/centralized_server.py".
+To start, open a window in Terminal and run the command "python3 (or python if python 3 is natively installed) path/to/repository/p2pftp/Server/centralized_server.py". Once that is ran, no other action is needed.
 
-### Host System (FTP Client/Server):
+### Host System (FTP Client/Server) [client_gui.py]:
+First, be sure to download the pyftpdlib and requests modules via pip before starting.
 
-#### Mac OS
-To start the host system, I dunno.
-The host's ftp directory is the directory in which the program was executed (in this case the 'Host' folder).
+To start the host system, open another window in Terminal and run the command "python3 (or python if python 3 is natively installed) path/to/repository/p2pftp/Host/client_gui.py". This will start both the ftp server and the gui. See the usage below for more details.
 
-#### Linux
+Note: The host's ftp directory is the directory in which the program was executed (in this case the 'Host' folder).
+
 
 ## Host Usage:
 
