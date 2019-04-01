@@ -23,12 +23,10 @@ class Database(BaseHTTPRequestHandler):
     def do_GET(self):
         #this is the function for the search command. Dane will use requests.get(url = URL, params = PARAMS) to request information
         query = urlparse(self.path).query
-        print(query)
         searchStr = str(query)
         search = searchStr.split("=")
         x = 0
         response = {}
-        print(search[1])
         for username in userFiles:
             for file in userFiles[username]:
                 if search[1].lower() in userFiles[username][file].lower():
@@ -44,7 +42,6 @@ class Database(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         responseStr = json.dumps(response)
-        print("The response should be: " + responseStr)
         self.wfile.write(responseStr.encode("utf-8"))
         # testResponse = "SEARCHED"
         # self.wfile.write(testResponse.encode("utf-8"))
@@ -77,7 +74,6 @@ class Database(BaseHTTPRequestHandler):
             jsonString = parsedBody[2]
             for x in range(3, len(parsedBody)):
                 jsonString += "_" + str(parsedBody[x])
-            print("jsonString: " + jsonString)
             datastore = json.loads(jsonString)
             if parsedBody[1] not in userFiles:
                 userFiles[parsedBody[1]] = {}
@@ -100,7 +96,6 @@ class Database(BaseHTTPRequestHandler):
             print("Disconnected user " + parsedBody[1])
         else:
             print("Didn't receive proper request. Request given: " + parsedBody[0])
-        print("This is the body: " + strBody)
         #print("This is a file check: " + userFiles["Dane"]["local_server.py"] )
 
         #This is all for response to request caller
