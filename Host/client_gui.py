@@ -185,9 +185,11 @@ def append_line(line):
 #Connects user to ftp_server
 def CONNECT(host, port):
 	try:
+        #Functino connects the to the server
 		ftp.connect(host, int(port))
 		ftp.login()
 		ftp.cwd('.') #replace with your directory
+        #Lists the input you put into the textbox
 		listbox.insert(END, entcommText.get())
 		conOutput = str("connected to " + host + " " + port)
 		listbox.insert(END, conOutput)
@@ -201,10 +203,13 @@ def CONNECT(host, port):
 def LIST():
 	global connectFlag
 	try:
+        #Lists the files in the server directory
 		ftp.retrlines('NLST', append_line)
 		for i in lines:
 			listbox.insert(END, i)
 		listbox.see(END)
+    #If the ftp_server disconnects before ending client_gui, will throw an exception
+    #when trying to execute a function.
 	except EOFError:
 		nonList = str("Server has cut connections with all hosts, cannot view files")
 		listbox.insert(END, nonList)
@@ -219,6 +224,7 @@ def STORE(file):
 	try:
 		ftp.size("dummyfile.txt")
 		if os.path.isfile(file):
+                #Stores the file in binary mode to the server directory
 				ftp.storbinary('STOR '+ file, open(file, 'rb'))
 				storeFile = str("Sucessfully stored " + file)
 				listbox.insert(END, storeFile)
@@ -226,13 +232,12 @@ def STORE(file):
 		else:
 			storeFail = str("File does not exist")
 			listbox.insert(END, storeFail)
+    #If the ftp_server disconnects before ending client_gui, will throw an exception
+    #when trying to execute a function.
 	except:
 		nonStore = str("Server has cut connections with all hosts, cannot store a file")
 		listbox.insert(END, nonStore)
 		connectFlag = False
-
-
-
 
 
 #retrieves files from the server directory
@@ -240,23 +245,27 @@ def STORE(file):
 def RETRIEVE(file_dl):
 	global connectFlag
 	try:
-		if file_dl in ftp.nlst():
+		if file_dl in ftp.nlst(): #checks if the retrieving file exists
 		    for name, types in ftp.mlsd("",["type"]):
+                #If the file is a directory, will not retrieve anything
 		        if file_dl == name and types["type"] == 'dir':
 		            retrDir = str("File is directory, cannot retrieve")
-		            listbox.insert(END, retrDir)
+		            listbox.insert(END, retrDir) #Prints text to the text box in the GUI
 		            return
 		    localfile = open(file_dl, 'wb')
+            #Retrieves specified file in binary transfer mode
 		    ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
 
 		    localfile.close()
 		    retrOutput = str("Retrieved file " + file_dl)
 		    listbox.insert(END, retrOutput)
 		    listbox.see(END)
-		else:
+		else: #If chosen file is not in the server directory then will print message below
 		    retrFail = str("File wasn't found")
 		    listbox.insert(END, retrFail)
 		    listbox.see(END)
+    #If the ftp_server disconnects before ending client_gui, will throw an exception
+    #when trying to execute a function.
 	except BrokenPipeError:
 		nonRetr = str("Server has cut connections with all hosts, cannot retrieve a file")
 		listbox.insert(END, nonRetr)
