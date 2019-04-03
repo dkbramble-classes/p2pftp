@@ -186,26 +186,26 @@ def append_line(line):
 
 #Connects user to ftp_server
 def CONNECT(host, port):
-	try:
-        #Function connects the to the server
-		ftp.connect(host, int(port))
-		ftp.login()
-		ftp.cwd('.') #replace with your directory
+    global connectFlag
+    try:
+        ftp.connect(host, int(port))
+        ftp.login()
+        ftp.cwd('.') #replace with your directory
         #Lists the input you put into the textbox
-		listbox.insert(END, entcommText.get())
-		conOutput = str("connected to " + host + " " + port)
-		listbox.insert(END, conOutput)
-		connectFlag = True
-		listbox.see(END)
-	except:
-		listbox.insert(END, "connection to " + host + "\'s timed out, please try again later")
-		listbox.see(END)
+        listbox.insert(END, entcommText.get())
+        conOutput = str("connected to " + host + " " + port)
+        listbox.insert(END, conOutput) #insert responses into the box
+        connectFlag = True
+        listbox.see(END) #move box to the end
+    except:
+        listbox.insert(END, host + "is on the network but the server cannot be found, please try again later")
+        listbox.see(END)
 
 #Allows the user to view a list of the files on the ftp_server
 def LIST():
 	global connectFlag
 	try:
-        #Lists the files in the server directory
+		#Lists the files in the server directory
 		ftp.retrlines('NLST', append_line)
 		for i in lines:
 			listbox.insert(END, i) #insert the results into the box
@@ -243,15 +243,14 @@ def STORE(file):
 def RETRIEVE(file_dl):
 	global connectFlag
 	try:
-		if file_dl in ftp.nlst(): #checks if the retrieving file exists
+		if file_dl in ftp.nlst():
 		    for name, types in ftp.mlsd("",["type"]):
-                #If the file is a directory, will not retrieve anything
 		        if file_dl == name and types["type"] == 'dir':
 		            retrDir = str("File is directory, cannot retrieve")
-		            listbox.insert(END, retrDir) #Prints text to the text box in the GUI
+		            listbox.insert(END, retrDir)
 		            return
 		    localfile = open(file_dl, 'wb')
-            #Retrieves specified file in binary transfer mode
+		    #Retrieves specified file in binary transfer mode
 		    ftp.retrbinary('RETR ' + file_dl, localfile.write, 1024)
 		    localfile.close()
 		    retrOutput = str("Retrieved file " + file_dl)
